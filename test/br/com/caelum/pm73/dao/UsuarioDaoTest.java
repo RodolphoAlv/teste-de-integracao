@@ -18,10 +18,13 @@ public class UsuarioDaoTest {
     public void init() {
         this.session = new CriadorDeSessao().getSession();
         this.usuarioDao = new UsuarioDao(session);
+
+        this.session.beginTransaction();
     }
 
     @After
     public void close() {
+        this.session.getTransaction().rollback();
         this.session.close();
     }
 
