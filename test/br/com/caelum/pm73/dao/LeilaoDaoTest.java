@@ -92,8 +92,7 @@ public class LeilaoDaoTest {
     @Test
     public void deveRetornarApenasLeiloesUsados() {
         Leilao antigo = new Leilao("Geladeira", 1500.0, jose, true);
-        Calendar semanaPassada = Calendar.getInstance();
-        semanaPassada.add(Calendar.DAY_OF_MONTH, -8);
+        Calendar semanaPassada = manipularInstante(-8);
         antigo.setDataAbertura(semanaPassada);
 
         Leilao novo = new Leilao("xbox", 700.0, jose, false);
@@ -106,5 +105,54 @@ public class LeilaoDaoTest {
 
         assertEquals(1, antigos.size());
         assertTrue(antigos.contains(antigo));
+    }
+
+    @Test
+    public void deveTrazerLeiloesNaoEncerradosNoPeriodo() {
+        Calendar comecoDoIntervalo = manipularInstante(-10);
+        Calendar fimDoIntervalo = Calendar.getInstance();
+
+        Leilao leilao1 = new Leilao("xbox", 700.0, jose, false);
+        Calendar dataDoLeilao1 = manipularInstante(-2);
+        leilao1.setDataAbertura(dataDoLeilao1);
+
+        Leilao leilao2 = new Leilao("geladeira", 1500.0, jose, false);
+        Calendar dataDoLeilao2 = manipularInstante(-20);
+        leilao2.setDataAbertura(dataDoLeilao2);
+
+        usuarioDao.salvar(jose);
+        leilaoDao.salvar(leilao1);
+        leilaoDao.salvar(leilao2);
+
+        List<Leilao> leiloes = leilaoDao.porPeriodo(comecoDoIntervalo, fimDoIntervalo);
+
+        assertEquals(1, leiloes.size());
+        assertTrue(leiloes.contains(leilao1));
+    }
+
+    @Test
+    public void naoDeveTrazerLeiloesEncerradosNoPeriodo() {
+        Calendar comecoDoIntervalo = manipularInstante(-10);
+        Calendar fimDoIntervalo = Calendar.getInstance();
+
+        Leilao leilao1 = new Leilao("xbox", 700.0, jose, false);
+        Calendar dataDoLeilao1 = manipularInstante(-2);
+        leilao1.setDataAbertura(dataDoLeilao1);
+        leilao1.encerra();
+
+        usuarioDao.salvar(jose);
+        leilaoDao.salvar(leilao1);
+
+        List<Leilao> leiloes = leilaoDao.porPeriodo(comecoDoIntervalo, fimDoIntervalo);
+
+        assertEquals(0, leiloes.size());
+
+    }
+
+    private static Calendar manipularInstante(int dias) {
+        Calendar instante = Calendar.getInstance();
+        instante.add(Calendar.DAY_OF_MONTH, dias);
+
+        return instante;
     }
 }
