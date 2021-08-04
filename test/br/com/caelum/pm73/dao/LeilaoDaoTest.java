@@ -7,7 +7,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class LeilaoDaoTest {
 
@@ -67,5 +70,21 @@ public class LeilaoDaoTest {
         long total = 0;
 
         assertEquals(0L, total);
+    }
+
+    @Test
+    public void deveRetornarApenasLeiloesNovos() {
+        Leilao usado = new Leilao("Geladeira", 1500.0, jose, true);
+        Leilao novo = new Leilao("xbox", 700.0, jose, false);
+
+        usuarioDao.salvar(jose);
+        leilaoDao.salvar(usado);
+        leilaoDao.salvar(novo);
+
+        List<Leilao> novos = leilaoDao.novos();
+
+        assertEquals(1, novos.size());
+        assertTrue(novos.contains(novo));
+
     }
 }
