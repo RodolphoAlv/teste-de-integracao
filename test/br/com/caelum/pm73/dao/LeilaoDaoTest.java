@@ -7,6 +7,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -86,5 +87,24 @@ public class LeilaoDaoTest {
         assertEquals(1, novos.size());
         assertTrue(novos.contains(novo));
 
+    }
+
+    @Test
+    public void deveRetornarApenasLeiloesUsados() {
+        Leilao antigo = new Leilao("Geladeira", 1500.0, jose, true);
+        Calendar semanaPassada = Calendar.getInstance();
+        semanaPassada.add(Calendar.DAY_OF_MONTH, -8);
+        antigo.setDataAbertura(semanaPassada);
+
+        Leilao novo = new Leilao("xbox", 700.0, jose, false);
+
+        usuarioDao.salvar(jose);
+        leilaoDao.salvar(antigo);
+        leilaoDao.salvar(novo);
+
+        List<Leilao> antigos = leilaoDao.antigos();
+
+        assertEquals(1, antigos.size());
+        assertTrue(antigos.contains(antigo));
     }
 }
