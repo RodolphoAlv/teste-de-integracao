@@ -249,6 +249,27 @@ public class LeilaoDaoTest {
         assertEquals(leilao, leiloes.get(0));
     }
 
+    @Test
+    public void deveBuscarAMediaDeValoresIniciais() {
+        Leilao leilao1 = new LeilaoBuilder()
+                .comDono(jose)
+                .comValor(700.0)
+                .constroi();
+
+        Leilao leilao2 = new LeilaoBuilder()
+                .comDono(jose)
+                .comValor(500.0)
+                .constroi();
+
+        usuarioDao.salvar(jose);
+        leilaoDao.salvar(leilao1);
+        leilaoDao.salvar(leilao2);
+
+        double valorInicialMedio = leilaoDao.getValorInicialMedioDoUsuario(jose);
+
+        assertEquals(600.0, valorInicialMedio, 0.00001);
+    }
+
     private static Calendar manipularInstante(int dias) {
         Calendar instante = Calendar.getInstance();
         instante.add(Calendar.DAY_OF_MONTH, dias);
