@@ -11,8 +11,7 @@ import org.junit.Test;
 import java.util.Calendar;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class LeilaoDaoTest {
 
@@ -268,6 +267,20 @@ public class LeilaoDaoTest {
         double valorInicialMedio = leilaoDao.getValorInicialMedioDoUsuario(jose);
 
         assertEquals(600.0, valorInicialMedio, 0.00001);
+    }
+
+    @Test
+    public void deveDeletarUmUsuario() {
+
+        usuarioDao.salvar(jose);
+        usuarioDao.deletar(jose);
+
+        session.flush();
+        session.clear();
+
+        Usuario usuarioDeletado = usuarioDao.porNomeEEmail(jose.getNome(), jose.getEmail());
+
+        assertNull(usuarioDeletado);
     }
 
     private static Calendar manipularInstante(int dias) {
