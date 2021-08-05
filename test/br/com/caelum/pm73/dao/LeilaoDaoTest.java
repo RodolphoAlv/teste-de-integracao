@@ -283,6 +283,39 @@ public class LeilaoDaoTest {
         assertNull(usuarioDeletado);
     }
 
+    @Test
+    public void deveDeletarUmLeilao() {
+        Leilao leilao = new LeilaoBuilder()
+                .constroi();
+
+        leilaoDao.salvar(leilao);
+        leilaoDao.deleta(leilao);
+
+        session.flush();
+        session.clear();
+
+        Leilao leilaoDeletado = leilaoDao.porId(leilao.getId());
+
+        assertNull(leilaoDeletado);
+    }
+
+    @Test
+    public void deveAtualizarUsuario() {
+
+        usuarioDao.salvar(jose);
+        Usuario joseBuscado = usuarioDao.porId(jose.getId());
+
+        joseBuscado.setNome("pedro");
+        usuarioDao.atualizar(joseBuscado);
+        session.flush();
+        session.clear();
+
+        Usuario joseAntigo = usuarioDao.porNomeEEmail("jose", jose.getEmail());
+        Usuario joseAtualizado = usuarioDao.porNomeEEmail("pedro", joseBuscado.getEmail());
+        assertNull(joseAntigo);
+        assertNotNull(joseAtualizado);
+    }
+
     private static Calendar manipularInstante(int dias) {
         Calendar instante = Calendar.getInstance();
         instante.add(Calendar.DAY_OF_MONTH, dias);
