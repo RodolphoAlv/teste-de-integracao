@@ -1,5 +1,6 @@
 package br.com.caelum.pm73.dao;
 
+import br.com.caelum.pm73.dominio.Lance;
 import br.com.caelum.pm73.dominio.Leilao;
 import br.com.caelum.pm73.dominio.Usuario;
 import org.hibernate.Session;
@@ -53,9 +54,8 @@ public class LeilaoDaoTest {
                 .comNome("xbox")
                 .comValor(700.0)
                 .comDono(jose)
+                .encerrado()
                 .constroi();
-
-        encerrado.encerra();
 
         usuarioDao.salvar(jose);
         leilaoDao.salvar(ativo);
@@ -73,16 +73,15 @@ public class LeilaoDaoTest {
                 .comNome("geladeira")
                 .comValor(1500.0)
                 .comDono(jose)
+                .encerrado()
                 .constroi();
 
         Leilao leilao2 = new LeilaoBuilder()
                 .comNome("xbox")
                 .comValor(700.0)
                 .comDono(jose)
+                .encerrado()
                 .constroi();
-
-        leilao1.encerra();
-        leilao2.encerra();
 
         usuarioDao.salvar(jose);
         leilaoDao.salvar(leilao1);
@@ -157,7 +156,6 @@ public class LeilaoDaoTest {
                 .diasAtras(2)
                 .constroi();
 
-
         Leilao leilao2 = new LeilaoBuilder()
                 .comNome("geladeira")
                 .comValor(1500.0)
@@ -185,9 +183,8 @@ public class LeilaoDaoTest {
                 .comValor(700.0)
                 .comDono(jose)
                 .diasAtras(2)
+                .encerrado()
                 .constroi();
-
-        leilao1.encerra();
 
         usuarioDao.salvar(jose);
         leilaoDao.salvar(leilao1);
@@ -196,6 +193,60 @@ public class LeilaoDaoTest {
 
         assertEquals(0, leiloes.size());
 
+    }
+
+    @Test
+    public void deveDevolverLeiloesOndeOUsuarioFezPeloMenosUmLance() {
+
+        Leilao leilao1 = new LeilaoBuilder()
+                .comNome("geladeira")
+                .comValor(1500.0)
+                .comDono(jose)
+                .constroi();
+
+        Lance lance1 = new Lance(Calendar.getInstance(), jose, 200.0, leilao1);
+        leilao1.adicionaLance(lance1);
+
+        Leilao leilao2 = new LeilaoBuilder()
+                .comNome("xbox")
+                .comValor(700.0)
+                .comDono(jose)
+                .constroi();
+
+        Lance lance2 = new Lance(Calendar.getInstance(), jose, 300.0, leilao2);
+        leilao2.adicionaLance(lance2);
+
+        usuarioDao.salvar(jose);
+        leilaoDao.salvar(leilao1);
+        leilaoDao.salvar(leilao2);
+
+
+        List<Leilao> leiloesDeJose = leilaoDao.listaLeiloesDoUsuario(jose);
+
+        assertEquals(2, leiloesDeJose.size());
+        assertTrue(leiloesDeJose.contains(leilao1));
+        assertTrue(leiloesDeJose.contains(leilao2));
+    }
+
+    @Test
+    public void listaDeLeiloesDeUmUsuarioNaoTemRepeticao() throws Exception {
+
+        Leilao leilao = new LeilaoBuilder()
+                .comDono(maria)
+                .constroi();
+
+        Lance lance1 = new Lance(Calendar.getInstance(), jose, 200.0, leilao);
+        Lance lance2 = new Lance(Calendar.getInstance(), jose, 200.0, leilao);
+        leilao.adicionaLance(lance1);
+        leilao.adicionaLance(lance2);
+
+        usuarioDao.salvar(maria);
+        usuarioDao.salvar(jose);
+        leilaoDao.salvar(leilao);
+
+        List<Leilao> leiloes = leilaoDao.listaLeiloesDoUsuario(jose);
+        assertEquals(1, leiloes.size());
+        assertEquals(leilao, leiloes.get(0));
     }
 
     private static Calendar manipularInstante(int dias) {
